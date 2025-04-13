@@ -1,0 +1,18 @@
+repos:
+  # Ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.5
+    hooks:
+      - id: ruff  # Linter
+        args: [--fix]
+      - id: ruff-format  # Formatter
+        args: [--fix]
+
+  # Xenon
+  - repo: https://github.com/xenon-lang/xenon
+    rev: v0.8.1-alpha
+    hooks:
+      - id: xenon
+        name: xenon code complexity checker
+        args: ['--max-absolute', '10', '--max-aggregate', '15', '--max-average', '5']
+        files: \.py$
