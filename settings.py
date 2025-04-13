@@ -1,9 +1,10 @@
 from pydantic_settings import BaseSettings
-from pydantic import field_validator  # Corrected import
+from pydantic import field_validator
 
 class Settings(BaseSettings):
     ENVIRONMENT: str
     APP_NAME: str
+    API_KEY: str = "default-api-key"  # <-- Provide a fallback value
 
     @field_validator('ENVIRONMENT')
     def validate_environment(cls, value):
@@ -13,4 +14,4 @@ class Settings(BaseSettings):
         return value
 
     class Config:
-        env_file = ".env"  # Default env file
+        env_file = ".env"

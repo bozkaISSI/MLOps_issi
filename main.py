@@ -2,31 +2,36 @@ import os
 import argparse
 from dotenv import load_dotenv
 from settings import Settings
+from utils.secrets_loader import load_secrets_from_sops_yaml  # <-- Import secret loader
 
 def export_envs(environment: str = "dev") -> None:
     """
-    This function loads the corresponding .env file based on the provided environment argument.
-    It raises a FileNotFoundError if the file doesn't exist.
+    Load .env.<environment> file and decrypted secrets YAML file.
     """
-    env_file = f".env.{environment}"  # Construct the .env file name dynamically
+    env_file = f".env.{environment}"
     if os.path.exists(env_file):
-        load_dotenv(env_file)  # Load the .env file
-        print(f"Loaded environment variables from {env_file}")  # Optional: Debugging message
+        load_dotenv(env_file)
+        print(f"Loaded environment variables from {env_file}")
     else:
-        raise FileNotFoundError(f"{env_file} not found")  # Raise an error if file does not exist
+        raise FileNotFoundError(f"{env_file} not found")
+
+    # Decrypt secrets YAML file using SOPS
+    secrets_file = f"secrets/{environment}.yaml"
+    if os.path.exists(secrets_file):
+        load_secrets_from_sops_yaml(secrets_file)
+        print(f"Loaded secrets from {secrets_file}")
+    else:
+        print(f"Warning: {secrets_file} not found. Skipping secrets loading.")
 
 if __name__ == "__main__":
-    # Set up argument parsing
-    parser = argparse.ArgumentParser(description="Load environment variables from specified .env file.")
-    parser.add_argument("--environment", type=str, default="dev", help="The environment to load (dev, test, prod)")
+    parser = argparse.ArgumentParser(description="Load environment variables and secrets.")
+    parser.add_argument("--environment", type=str, default="dev", help="Specify environment: dev, test, prod")
     args = parser.parse_args()
 
-    # Load environment variables based on the provided environment
     export_envs(args.environment)
 
-    # Instantiate settings to access environment variables
     settings = Settings()
 
-    # Print the settings to verify the environment variables
     print("APP_NAME:", settings.APP_NAME)
     print("ENVIRONMENT:", settings.ENVIRONMENT)
+    print("API_KEY:", settings.API_KEY)  # <-- To verify the secret is loaded
